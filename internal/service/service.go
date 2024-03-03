@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/aalysher/goods/config"
+	"github.com/aalysher/goods/internal/infrastructure/db"
 )
 
 type Service struct {
-	cfg Config
+	cfg config.Config
 	db  *sql.DB
 }
 
@@ -25,7 +26,7 @@ func New() (*Service, error) {
 func (s *Service) init() (err error) {
 	s.cfg, err = config.LoadConfig()
 	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
+		return fmt.Errorf("load config: %w", err)
 	}
 
 	if err = s.initDB(); err != nil {
@@ -36,7 +37,7 @@ func (s *Service) init() (err error) {
 }
 
 func (s *Service) initDB() (err error) {
-	s.db, err = NewPostgres(s.cfg.Postgres)
+	s.db, err = db.NewPostgres(s.cfg.Database.Postgres)
 	if err != nil {
 		return fmt.Errorf("failed to connect to postgres: %w", err)
 	}

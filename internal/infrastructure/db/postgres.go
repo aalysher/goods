@@ -6,23 +6,17 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+
+	"github.com/aalysher/goods/config"
 )
 
-type Postgres struct {
-	DB *sql.DB
-}
-
-func NewPostgres(cfg Config) (*Postgres, error) {
-	connectionString := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable connect_timeout=%s",
-		cfg.Host,
-		cfg.Port,
-		cfg.Username,
-		cfg.Password,
-		cfg.DBName,
+func NewPostgres(c config.Postgres) (*sql.DB, error) {
+	dataSourceName := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		c.Username, c.Password, c.Host, c.Port, c.DBName,
 	)
 
-	db, err := sql.Open("postgres", connectionString)
+	db, err := sql.Open("postgres", dataSourceName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to postgres: %w", err)
 	}
@@ -33,5 +27,5 @@ func NewPostgres(cfg Config) (*Postgres, error) {
 
 	log.Println("Successfully connected to PostgreSQL")
 
-	return &Postgres{DB: db}, nil
+	return db, nil
 }
